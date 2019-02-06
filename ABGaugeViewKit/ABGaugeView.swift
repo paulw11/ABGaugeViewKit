@@ -51,17 +51,14 @@ public class ABGaugeView: UIView {
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
-        drawGauge()
     }
     
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        drawGauge()
     }
     
     override public func layoutSubviews() {
         super.layoutSubviews()
-        drawGauge()
     }
     
     // MARK:- Custom Methods
