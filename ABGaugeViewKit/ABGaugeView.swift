@@ -37,12 +37,15 @@ public class ABGaugeView: UIView {
     }
     
     @IBInspectable public var blinkAnimate: Bool = true
+    @IBInspectable public var springAnimate: Bool = false
     
     @IBInspectable public var circleColor: UIColor = UIColor.black
     @IBInspectable public var shadowColor: UIColor = UIColor.lightGray.withAlphaComponent(0.3)
     
     var firstAngle = CGFloat()
     var capStyle = CGLineCap.round
+    
+    private var lastAngle: CGFloat = 0.0
     
     // MARK:- UIView Draw method
     override public func draw(_ rect: CGRect) {
@@ -207,11 +210,14 @@ public class ABGaugeView: UIView {
         let theD = (radians - thisRadians)/2
         firstAngle += theD
         let needleValue = radian(for: self.needleValue) + firstAngle
-        animate(triangleLayer: triangleLayer, shadowLayer: shadowLayer, fromValue: 0, toValue: needleValue*1.05, duration: 0.5) {
-            self.animate(triangleLayer: triangleLayer, shadowLayer: shadowLayer, fromValue: needleValue*1.05, toValue: needleValue*0.95, duration: 0.4, callBack: {
-                self.animate(triangleLayer: triangleLayer, shadowLayer: shadowLayer, fromValue: needleValue*0.95, toValue: needleValue, duration: 0.6, callBack: {})
+        let delta:CGFloat = self.springAnimate ? 0.05 : 0
+        let duration: Double = self.springAnimate ? 1 : 0
+        animate(triangleLayer: triangleLayer, shadowLayer: shadowLayer, fromValue: self.lastAngle, toValue: needleValue*(1+delta), duration: 0.5) {
+            self.animate(triangleLayer: triangleLayer, shadowLayer: shadowLayer, fromValue: needleValue*(1+delta), toValue: needleValue*(1-delta), duration: 0.4 * duration, callBack: {
+                self.animate(triangleLayer: triangleLayer, shadowLayer: shadowLayer, fromValue: needleValue*(1-delta), toValue: needleValue, duration: 0.6 * duration, callBack: {})
             })
         }
+        self.lastAngle = needleValue
     }
     
     func animate(triangleLayer: CAShapeLayer, shadowLayer:CAShapeLayer, fromValue: CGFloat, toValue:CGFloat, duration: CFTimeInterval, callBack:@escaping ()->Void) {
